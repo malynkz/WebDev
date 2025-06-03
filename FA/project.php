@@ -33,10 +33,11 @@ $stmt->close();
 		
 		body {
             background-image: url('bg.jpg');
-            background-size: cover; /* Adjusts image to cover the entire background */
-            background-repeat: no-repeat;
+            background-size: cover; /*Coprire tutto lo sfondo*/
+            background-repeat: repeat-x; /*per lo scorrimento dell'immagine*/
             background-position: center;
 			background-color: transparent;
+			position: relative;
         }
 		
 		.animated-bg {
@@ -48,7 +49,7 @@ $stmt->close();
 		z-index: 0;
 		pointer-events: none;
 		}
-		.animated-bg img {
+		.character img {
 		width: 100%;
 		height: auto;
 		display: block;
@@ -66,35 +67,51 @@ $stmt->close();
 </head>
 
 <body>
-	<div id ="character" class="animated-bg">
+	<div id ="character" class="character">
 		<img src="catt.png" alt="Decorazione" />
 	</div>
 	
 	<script>
-		let lastTime = performance.now();
-		let lastLeft = 0;
-		const character = document.getElementById('character');
-		const position = character.getBoundingClientRect();
+    const character = document.getElementById('character');
+    let vSpeed = 0;
+    let gravity = 500; 
+    let lastTime = performance.now();
+    let posY = 300; //altezza iniziale
+    let isJumping = false;
 
-		function checkSpeed() {
-			const currentLeft = position.left;
+    function jump() {
+      const currentTime = performance.now();
+      const deltaTime = (currentTime - lastTime) / 1000;
+      lastTime = currentTime;
 
-			const currentTime = performance.now(); // current time in milliseconds
-			const timeElapsed = (currentTime - lastTime) / 1000; // in seconds
-			const distanceMoved = currentLeft - lastLeft;
+      //gravità (la gravità c'è SEMPRE, metti solo un pavimento che te la blocca
+      vSpeed += gravity * deltaTime;
+      posY += vSpeed * deltaTime;
 
-			const speed = distanceMoved / timeElapsed; // pixels per second
+      // Floor collision
+      const floor = window.innerHeight - 50;
+      if (posY > floor) {
+        posY = floor;
+        vSpeed = 0;
+        isJumping = false;
+      }
 
-			// update for next check
-			lastTime = currentTime;
-			lastLeft = currentLeft;
-		}
+      character.style.top = posY + 'px';
 
-		// call checkSpeed every 100ms
-		setInterval(checkSpeed, 100);
+      requestAnimationFrame(update);
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowUp' && !isJumping) {
+        verticalSpeed = -400; //funzione salta upon click
+        isJumping = true;
+      }
+    });
+
+    jump(); //riinizia il loop
 	
-		function jump() {
-	 
-	</script>
+	
+	
+  </script>
 </body>
 </html>
